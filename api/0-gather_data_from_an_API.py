@@ -1,54 +1,37 @@
 #!/usr/bin/python3
-"""
-    Python script that returns TODO list progress for a given employee ID
-"""
-import json
 import requests
-from sys import argv
 
+def get_employee_todo_progress(employee_id):
+    base_url = "https://jsonplaceholder.typicode.com"
+    employee_url = f"{base_url}/users/{employee_id}"
+    todo_url = f"{base_url}/todos?userId={employee_id}"
+    
+    # Retrieve employee information
+    response = requests.get(employee_url)
+    if response.status_code != 200:
+        print(f"Error: Could not retrieve employee information for ID {employee_id}")
+        return
+    
+    employee_data = response.json()
+    employee_name = employee_data.get("name")
+    
+    # Retrieve TODO list information
+    response = requests.get(todo_url)
+    if response.status_code != 200:
+        print(f"Error: Could not retrieve TODO list for employee ID {employee_id}")
+        return
+    
+    todo_data = response.json()
+    total_tasks = len(todo_data)
+    done_tasks = [task for task in todo_data if task.get("completed")]
+    num_done_tasks = len(done_tasks)
+    
+    # Print the progress information
+    print(f"Employee {employee_name} is done with tasks ({num_done_tasks}/{total_tasks}):")
+    
+    for task in done_tasks:
+        print(f"\t{task.get('title')}")
 
-if __name__ == "__main__":
-    """
-        Request user info by employee ID
-    """
-    request_employee = requests.get(
-        'https://jsonplaceholder.typicode.com/users/{}/'.format(argv[1]))
-    """
-        Convert JSON to dictionary
-    """
-    employee = json.loads(request_employee.text)
-    """
-        Extract employee name
-    """
-    employee_name = employee.get("name")
-
-    """
-        Request user's TODO list
-    """
-    request_todos = requests.get(
-        'https://jsonplaceholder.typicode.com/users/{}/todos'.format(argv[1]))
-    """
-        Dictionary to store task status in boolean format
-    """
-    tasks = {}
-    """
-        Convert JSON to list of dictionaries
-    """
-    employee_todos = json.loads(request_todos.text)
-    """
-        Loop through dictionary and get completed tasks
-    """
-    for dictionary in employee_todos:
-        tasks.update({dictionary.get("title"): dictionary.get("completed")})
-
-    """
-        Return name, total number of tasks and completed tasks
-    """
-    EMPLOYEE_NAME = employee_name
-    TOTAL_NUMBER_OF_TASKS = len(tasks)
-    NUMBER_OF_DONE_TASKS = len([k for k, v in tasks.items() if v is True])
-    print("Employee {} is done with tasks({}/{}):".format(
-        EMPLOYEE_NAME, NUMBER_OF_DONE_TASKS, TOTAL_NUMBER_OF_TASKS))
-    for k, v in tasks.items():
-        if v is True:
-            print("\t {}".format(k))
+# Example usage
+employee_id = 1
+get_employee_todo_progress(employee_id)
