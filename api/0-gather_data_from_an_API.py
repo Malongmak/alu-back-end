@@ -1,54 +1,32 @@
 #!/usr/bin/python3
-"""
-    Python script that returns TODO list progress for a given employee ID
-"""
-import json
 import requests
-from sys import argv
 
+def get_employee_todo_progress(employee_id):
+    # Make a GET request to the API
+    response = requests.get(f'https://jsonplaceholder.typicode.com/users/{employee_id}/todos')
 
-if __name__ == "__main__":
-    """
-        Request user info by employee ID
-    """
-    request_employee = requests.get(
-        'https://jsonplaceholder.typicode.com/users/{}/'.format(argv[1]))
-    """
-        Convert JSON to dictionary
-    """
-    employee = json.loads(request_employee.text)
-    """
-        Extract employee name
-    """
-    employee_name = employee.get("name")
+    # Check if the request was successful
+    if response.status_code == 200:
+        todos = response.json()
 
-    """
-        Request user's TODO list
-    """
-    request_todos = requests.get(
-        'https://jsonplaceholder.typicode.com/users/{}/todos'.format(argv[1]))
-    """
-        Dictionary to store task status in boolean format
-    """
-    tasks = {}
-    """
-        Convert JSON to list of dictionaries
-    """
-    employee_todos = json.loads(request_todos.text)
-    """
-        Loop through dictionary and get completed tasks
-    """
-    for dictionary in employee_todos:
-        tasks.update({dictionary.get("title"): dictionary.get("completed")})
+        # Filter completed tasks
+        completed_tasks = [todo for todo in todos if todo['completed']]
 
-    """
-        Return name, total number of tasks and completed tasks
-    """
-    EMPLOYEE_NAME = employee_name
-    TOTAL_NUMBER_OF_TASKS = len(tasks)
-    NUMBER_OF_DONE_TASKS = len([k for k, v in tasks.items() if v is True])
-    print("Employee {} is done with tasks({}/{}):".format(
-        EMPLOYEE_NAME, NUMBER_OF_DONE_TASKS, TOTAL_NUMBER_OF_TASKS))
-    for k, v in tasks.items():
-        if v is True:
-            print("\t {}".format(k))
+        # Get employee name
+        employee_name = todos[0]['name'] if todos else 'Unknown Employee'
+
+        # Display progress information
+        print(f"Employee {employee_name} is done with tasks ({len(completed_tasks)}/{len(todos)}):")
+
+        # Display completed task titles
+        for task in completed_tasks:
+            print("\t", task['title'])
+    else:
+        print("Failed to retrieve TODO list.")
+
+# Prompt for employee ID
+employee_id = int(input("Enter employee ID: "))
+
+# Call the function to get employee's TODO list progress
+get_employee_todo_progress(employee_id)
+
