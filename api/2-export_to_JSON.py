@@ -23,7 +23,7 @@ if __name__ == "__main__":
     username = user.get("username")
 
     """
-        request user's TODD list
+        request user's TODO list
     """
     request_todos = requests.get(
         'https://jsonplaceholder.typicode.com/users/{}/todos'.format(argv[1]))
@@ -43,7 +43,7 @@ if __name__ == "__main__":
         task["task"] = dictionary.get("title")
         task["completed"] = dictionary.get("completed")
         task["username"] = username
-        task.append(task)
+        tasks.append(task)
 
     """
         export to JSON
