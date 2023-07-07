@@ -1,1 +1,1 @@
- the README.md must contains guidance about common troubleshootings, deployment process, automated-testing and CI/CD pipelines.
+A README.md file is commonly used in software projects, including APIs, to provide documentation and instructions to developers and users. It typically serves as a guide on how to use the API, its features, and any additional information relevant to its implementation and integration.
